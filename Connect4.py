@@ -61,14 +61,10 @@ def get_cpu_move():
 
     # Otherwise choose a random column.
 
-    print()
-    print('CPU move selections:')
     moves = [x+1 for x in range(BOARDSIZE)]
     move = random.choice(moves)
-    print(move)
     while (move, 8) in board:
         move = random.choice(moves)
-    print()
     return move
 
 
