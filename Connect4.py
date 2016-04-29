@@ -24,6 +24,10 @@ def print_board(board):
 
 def get_player_move():
 
+    '''Asks the player for their move. Checks that the move is valid,
+    and then returns it as an int.
+    '''
+
     move = input("Choose a column to place your piece into. ")
     while True:
         try:
@@ -34,7 +38,7 @@ def get_player_move():
         if not 0 < move <= BOARDSIZE:
             move = input("That's not a valid move. ")
             continue
-        while (move, 0) in board:
+        if (move, 8) in board:
             move = input("There's no more room in that column. ")
             continue
         return move
@@ -51,45 +55,21 @@ def get_cpu_move():
     # Check if there's a winning move this turn.
     
     for move in range(1, BOARDSIZE+1):
-        if try_moves([move]):
-            return move
+        if (move, 8) not in board:
+            if try_moves([move]):
+                return move
 
     # Otherwise choose a random column.
 
+    print()
+    print('CPU move selections:')
     moves = [x+1 for x in range(BOARDSIZE)]
     move = random.choice(moves)
-    while (move, 0) in board:
+    print(move)
+    while (move, 8) in board:
         move = random.choice(moves)
+    print()
     return move
-
-
-    '''
-    could try to do a search n moves deep for each possible move.
-    build a dict mapping from possible columns to chance of winning.
-    for every position n or fewer moves away that results in a win, for
-    the cpu, add one/depth, and if the player wins, minus one/depth.
-    random choice from the highest scoring moves. (this formula will
-    overestimate probabilities as it doesn't take into account the possible
-    moves that the player can make in between).
-    O(n**2), so will benefit from the more efficient game_won() a lot.
-    can increase n for higher difficulty, although this should ideally scale
-    BOARDSIZE, because this will also increase search space due to an increased
-    number of possible moves.
-    I think a depth-first search would make for easier pruning of routes once
-    they reach a win scenario.
-
-    How to do the search:
-    Probably need a function that checks a sequence of moves to see if it wins.
-    Need to make sure this function doesn't alter the main board list.
-    I then only need to store a list of max size BOARDSIZE. Keep this list
-    separate from the poss_moves dict. Extend the list
-    move by move, and change the relevant poss_moves dict value whenever you
-    reach a win state, and stop searching that branch. After a level has
-    been exhausted, either by all possible moves reaching a win, or (more
-    likely) by reaching the max search depth, you can move back one level.
-    Not sure if I can prune branches as I go, or if I'll have to keep a
-    pruning table separately.
-    '''
 
 
 def drop_piece(board, move):
@@ -98,10 +78,6 @@ def drop_piece(board, move):
     an int, move, and updates the board by placing the player's
     piece in the lowest free spot in that number column.
     Returns the y co-ordinate it is placed at, as an int.
-
-    This will probably need updating in tandem with try_moves(), or maybe
-    just use different functions for trying moves, and putting this code in
-    the main game loop.
     '''
 
     for y in range(1, BOARDSIZE+1):
@@ -141,14 +117,6 @@ def try_moves(moves):
 
     '''Accepts a list of ints, moves, and applies them in order to see
     if they result in a win. Returns a bool.
-
-    Ideally this can be changed to to only call game_won() after all moves
-    have been applied, however it depends how get_cpu_move() ends up being
-    implemented.
-
-    Apparently I need to use a chainmap for this (for optimum speed, and
-    therefore to maximise the possible search depth. Now to figure out how
-    to use chainmaps...
     '''
 
     temp_board = copy(board)
@@ -162,8 +130,11 @@ def try_moves(moves):
 
 def testboard():
 
-    for x in range(1, 5):
-        board[(x,7-x)] = 'X'
+    '''Used to set a non-blank starting position for the board to
+    to test.
+    '''
+    
+    pass
     
 
         
@@ -204,6 +175,8 @@ while True:
 
     print_board(board)
 
+    print('X: {}   Y: {}'.format(move, last_y))
+
     if game_won(board, move, last_y):
         print("{} has won!".format(player))
         break
@@ -213,5 +186,3 @@ while True:
         break
 
     turn += 1
-
-    
