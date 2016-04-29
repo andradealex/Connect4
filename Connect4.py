@@ -171,8 +171,6 @@ while True:
 
     print_board(board)
 
-    print('X: {}   Y: {}'.format(move, last_y))
-
     if game_won(board, move, last_y):
         print("{} has won!".format(player))
         break
